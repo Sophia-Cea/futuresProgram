@@ -1,7 +1,9 @@
 import pygame
 import sys
 import os
+import tkinter
 
+tkinter.Tk().withdraw()
 pygame.init()
 
 def gradient(col1, col2, surface):
@@ -39,14 +41,14 @@ def convertRect(surface, rectTuple):
     return pygame.Rect(width/100*newRect[0], height/100*newRect[1], width/100*newRect[2], height/100*newRect[3])
 
 class Colors:
-    col1 = [0, 109, 119]
-    col2 = [131, 197, 190]
-    col3 = [255,255,255]
-    col4 = [222, 226, 255]
-    col5 = [142, 154, 175]
+    col1 = [207, 186, 240]
+    col2 = [152, 245, 225]
+    col3 = [251, 248, 204]
+    col4 = [253, 228, 207]
+    col5 = [255, 207, 210]
 
     textCol = col3.copy()
-    bgCol1 = col4.copy()
+    bgCol1 = col1.copy()
     bgCol2 = col2.copy()
     buttonCol1 = col4.copy()
     buttonCol2 = col5.copy()

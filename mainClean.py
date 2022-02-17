@@ -6,7 +6,6 @@ from scraper import *
 from screensAndFunctions import *
 
 
-pygame.init()
 fpsClock = pygame.time.Clock()
 FPS = 30
 

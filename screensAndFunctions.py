@@ -1,21 +1,14 @@
+import tkinter
+from tkinter import filedialog
+tkinter.Tk().withdraw()
 import pygame
 from utils import *
 import pygame.display
 from random import randint
 from scraper import *
+from getNotifSettings import *
+import pox
 
-
-WIDTH = 1000
-HEIGHT = 700
-pygame.init()
-screen = pygame.display.set_mode([WIDTH,HEIGHT], pygame.RESIZABLE)
-Surf.surface = screen
-Screen.state = 0
-
-
-dayInfo = eval(getDayInfo())
-weekInfo = eval(getWeekInfo())
-monthInfo = eval(getMonthInfo())
 
 
 # Functions for screens~~~~~~~
@@ -29,6 +22,9 @@ def changeStateToMenu():
 def changeStateToFutureView():
     Screen.state = 2
 
+def changeStateToNotif():
+    Screen.state = 3
+
 def setupFutureView(name):
     for unit in dayInfo:
         if unit['label'] == name:
@@ -40,9 +36,9 @@ def setupFutureView(name):
         if unit['label'] == name:
             monthDict = unit
     futureView.texts[0]= Text(name, 'title', Colors.textCol, (50,5), True)
-    futureView.texts[1] = Text('Day: ' + str(dayDict['perf']) + '%', 'subtitle', Colors.textCol, (5, 15), False)
-    futureView.texts[2] = Text('Week: ' + str(weekDict['perf']) + '%', 'subtitle', Colors.textCol, (5, 25), False)
-    futureView.texts[3] = Text('Month: ' + str(monthDict['perf']) + '%', 'subtitle', Colors.textCol, (5, 35), False)
+    futureView.texts[1] = Text('Day: ' + str(dayDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 20), True)
+    futureView.texts[2] = Text('Week: ' + str(weekDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 25), True)
+    futureView.texts[3] = Text('Month: ' + str(monthDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 30), True)
 
 def addBiggestDroppersToMenu():
     for i in range(5):
@@ -143,13 +139,49 @@ def fullListInput(events):
                     changeStateToFutureView()
                 i += 1
 
+def pickNewFilePath():
+    try:
+        path = filedialog.askopenfilename()
+    except:
+        print("didnt work")
+    return path
+
+def getSettingsPath():
+    try:
+        path = pox.find('settings.json')[0]
+    except:
+        print("excepting...")
+        path = pickNewFilePath()
+    return path
+
+
+
+# Run Stuff~~~~~~
+
+WIDTH = 600
+HEIGHT = 700
+pygame.init()
+screen = pygame.display.set_mode([WIDTH,HEIGHT], pygame.RESIZABLE)
+Surf.surface = screen
+Screen.state = 0
+
+path = getSettingsPath()
+print(path)
+notifyAmnt = getJsonData(path)
+
+
+dayInfo = eval(getDayInfo())
+weekInfo = eval(getWeekInfo())
+monthInfo = eval(getMonthInfo())
+
 
 
 # Screens~~~~~~~~~~
 
 menu = Screen(
     [
-        Button("View full list", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(40, 35, 20, 10), 20, changeStateToFullList),
+        Button("View full list", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 28, 32, 10), 20, changeStateToFullList),
+        Button("Notification Settings", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 40, 32, 10), 20, changeStateToNotif)
     ],
     [
         Text('Future Tracking', 'title', Colors.textCol, (50,5), True),
@@ -163,9 +195,9 @@ menu = Screen(
 fullList = Screen(
     [
         Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(40, 88, 20, 9), 20, changeStateToMenu),
-        Button("Sort Day", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(25, 13, 10, 5), 20, setFullListDay),
-        Button("Sort Week", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(45, 13, 10, 5), 20, setFullListWeek),
-        Button("Sort Month", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(65, 13, 10, 5), 20, setFullListMonth)
+        Button("Sort Day", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(16, 13, 18, 5), 20, setFullListDay),
+        Button("Sort Week", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(41, 13, 18, 5), 20, setFullListWeek),
+        Button("Sort Month", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(66, 13, 18, 5), 20, setFullListMonth)
 
     ],
     [
@@ -177,6 +209,7 @@ fullList = Screen(
 futureView = Screen(
     [
         Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(35, 80, 30, 10), 20, changeStateToFullList)
+
     ],
     [
         None,
@@ -187,9 +220,18 @@ futureView = Screen(
     Colors.bgCol1, Colors.bgCol2
 )
 
+notifSettings = Screen(
+    [
+        Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(38, 85, 24, 10), 20, changeStateToMenu)
+    ],
+    [
+        Text("Notification Settings", 'title', Colors.textCol, (50, 3), True),
+        Text("Notify for drops more than: " + str(notifyAmnt), 'paragraph', Colors.textCol, (5, 25), False)
+    ],
+    Colors.bgCol1, Colors.bgCol2
+)
 
 
-# Run Stuff~~~~~~
 
 addBiggestDroppersToMenu()
 setFullListDay()
