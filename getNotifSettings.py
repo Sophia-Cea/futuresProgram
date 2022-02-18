@@ -4,6 +4,8 @@ def getJsonData(path):
     with open(path) as file:
         data = json.load(file)
     
-    notifyAmnt = data['notifyPriceDrop']
+    notifyAmntDay = data['notifyPriceDropDay']
+    notifyAmntWeek = data['notifyPriceDropWeek']
+    notifyAmntMonth = data['notifyPriceDropMonth']
 
-    return notifyAmnt
+    return notifyAmntDay, notifyAmntWeek, notifyAmntMonth

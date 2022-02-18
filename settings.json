@@ -1,3 +1,5 @@
 {
-    "notifyPriceDrop": 10
+    "notifyPriceDropDay": 2,
+    "notifyPriceDropWeek": 5,
+    "notifyPriceDropMonth": 7
 }
