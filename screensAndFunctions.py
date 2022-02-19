@@ -17,7 +17,8 @@ from notify import *
 # improve overall ui/change color palette
 # improve settings.json so it writes default settings to it if its empty
 # make it write changed settings to settings
-
+# have a thingy check if something was already notified about in the day
+# or if it dropped any more since last refresh
 
 
 # Functions for screens~~~~~~~
@@ -35,6 +36,8 @@ def changeStateToNotif():
     Screen.state = 3
 
 def setupFutureView(name):
+    global stockBeingViewed
+    stockBeingViewed = name
     for unit in dayInfo:
         if unit['label'] == name:
             dayDict = unit
@@ -48,6 +51,10 @@ def setupFutureView(name):
     futureView.texts[1] = Text('Day: ' + str(dayDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 20), True)
     futureView.texts[2] = Text('Week: ' + str(weekDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 25), True)
     futureView.texts[3] = Text('Month: ' + str(monthDict['perf']) + '%', 'subtitle', Colors.textCol, (50, 30), True)
+    if muteList[name] == False:
+        futureView.buttons[1] = Button('Mute', Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(43, 50, 14, 6), 20, muteStock)
+    if muteList[name] == True:
+        futureView.buttons[1] = Button('Unmute', Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(43, 50, 14, 6), 20, unMuteStock)
 
 def addBiggestDroppersToMenu():
     for i in range(5):
@@ -295,16 +302,27 @@ def refreshAllText():
 
 def checkAndQueue():
     refresh()
-    # loop thru all the info to find if anything matches notifyAmnts 
-    # if it does, add it to the queue
-    # make a separate function to deal with notifying from the queue
-
-    #make a function to check day, week, and month data
-    for dataDict in dayInfo:
-        if float(dataDict['perf']) <= -1 * float(notifyAmntDay):
-            # make a function to check its not already in the queue
-            notifQueue.append([dataDict, 'day'])
-            print(notifQueue)
+    # ***find a way to optimize it so its running the least amount of code
+    if notifyAmntDay != 'None' and notifyAmntDay != '':
+        for dataDict in dayInfo:
+            if muteList[dataDict['label']] == False:
+                if float(dataDict['perf']) <= -1 * float(notifyAmntDay):
+                    if checkNotInQueue([dataDict, 'day']):
+                        notifQueue.append([dataDict, 'day'])
+    
+    if notifyAmntWeek != 'None' and notifyAmntWeek != '':
+        for dataDict in weekInfo:
+            if muteList[dataDict['label']] == False:
+                if float(dataDict['perf']) <= -1 * float(notifyAmntWeek):
+                    if checkNotInQueue([dataDict, 'week']):
+                        notifQueue.append([dataDict, 'week'])
+    
+    if notifyAmntMonth != 'None' and notifyAmntMonth != '':
+        for dataDict in monthInfo:
+            if muteList[dataDict['label']] == False:
+                if float(dataDict['perf']) <= -1 * float(notifyAmntMonth):
+                    if checkNotInQueue([dataDict, 'month']):
+                        notifQueue.append([dataDict, 'month'])
 
 def handleQueue(events):
     for event in events:
@@ -313,6 +331,28 @@ def handleQueue(events):
                 print("notifying...")
                 notify("New Target Low!", str(notifQueue[0][0]['label']) + " dropped by " + str(notifQueue[0][0]['perf']) + "% in a " + str(notifQueue[0][1]))
                 notifQueue.remove(notifQueue[0])
+
+def checkNotInQueue(newNotif):
+    # this function can be optimized to 
+    for notif in notifQueue:
+        if newNotif[0]['label'] == notif[0]['label'] and newNotif[1] == notif[1]:
+            return False
+    return True
+
+def getMuteSettings():
+    muteList = {}
+    for dict in monthInfo:
+        muteList[dict['label']] = False
+    return muteList
+
+def muteStock():
+    muteList[stockBeingViewed] = True
+    setupFutureView(stockBeingViewed)
+    print(muteList)
+
+def unMuteStock():
+    muteList[stockBeingViewed] = False
+    setupFutureView(stockBeingViewed)
 
 # Run Stuff~~~~~~
 
@@ -328,6 +368,7 @@ editing3 = False
 nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 notifQueue = []
 pygame.time.set_timer(pygame.USEREVENT + 1, 5000)
+stockBeingViewed = None
 
 path = getSettingsPath()
 print(path)
@@ -340,6 +381,8 @@ notifyAmntMonth = str(notifyAmntMonth)
 dayInfo = eval(getDayInfo())
 weekInfo = eval(getWeekInfo())
 monthInfo = eval(getMonthInfo())
+
+muteList = getMuteSettings()
 
 
 
@@ -375,7 +418,8 @@ fullList = Screen(
 
 futureView = Screen(
     [
-        Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(35, 80, 30, 10), 20, changeStateToFullList)
+        Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(35, 80, 30, 10), 20, changeStateToFullList),
+        None
 
     ],
     [
