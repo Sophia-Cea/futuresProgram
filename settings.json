@@ -1,7 +1,1 @@
-{
-    "notifyPriceDropDay": 2,
-    "notifyPriceDropWeek": 5,
-    "notifyPriceDropMonth": 7,
-    "notifFrq": 5,
-    "refreshFrq": 10
-}
+{"notifyPriceDropDay": "22", "notifyPriceDropWeek": "5", "notifyPriceDropMonth": "7", "notifFrq": "50", "refreshFrq": "50"}

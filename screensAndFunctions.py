@@ -1,4 +1,4 @@
-import queue
+# import queue
 import tkinter
 from tkinter import filedialog
 tkinter.Tk().withdraw()
@@ -12,13 +12,14 @@ import pox
 from notify import *
 
 # TODO: implement a few cleanup functions
-# add a setting to customize refresh frequrncy and notification frequency
 # add a page that lists all the futures that were notified about
-# improve overall ui/change color palette
 # improve settings.json so it writes default settings to it if its empty
-# make it write changed settings to settings
+# change settings.json to a better name
 # have a thingy check if something was already notified about in the day
 # or if it dropped any more since last refresh
+
+
+# currently doing: optimizing and adding idle state
 
 
 # Functions for screens~~~~~~~
@@ -34,6 +35,10 @@ def changeStateToFutureView():
 
 def changeStateToNotif():
     Screen.state = 3
+
+def writeSettingsAndMenuState():
+    writeSettings(path, notifyAmntDay, notifyAmntWeek, notifyAmntMonth, refreshRate, notifRate)
+    Screen.state = 0
 
 def setupFutureView(name):
     global stockBeingViewed
@@ -138,7 +143,7 @@ def fullListUpdate():
             button.hovering = False
     for text in fullList.texts:
         if text.checkMouseOver() and text != fullList.texts[0]:
-            pygame.draw.rect(screen, Colors.textCol, text.rect, 3, 0)
+            pygame.draw.rect(screen, Colors.accentCol, text.rect, 3, 0)
 
 def fullListInput(events):
     for event in events:
@@ -171,7 +176,7 @@ def getSettingsPath():
     return path
 
 def setEditing1():
-    global editing1, editing2, editing3, notifyAmntDay
+    global editing1, editing2, editing3, editing4, editing5, notifyAmntDay
     if editing1:
         editing1 = False
         if len(notifyAmntDay) == 0:
@@ -181,11 +186,13 @@ def setEditing1():
         editing1 = True
         editing2 = False
         editing3 = False
+        editing4 = False
+        editing5 = False
         if notifyAmntDay == "None":
             notifyAmntDay = ""
 
 def setEditing2():
-    global editing1, editing2, editing3, notifyAmntWeek
+    global editing1, editing2, editing3, editing4, editing5, notifyAmntWeek
     if editing2:
         editing2 = False
         if len(notifyAmntWeek) == 0:
@@ -195,11 +202,13 @@ def setEditing2():
         editing1 = False
         editing2 = True
         editing3 = False
+        editing4 = False
+        editing5 = False
         if notifyAmntWeek == "None":
             notifyAmntWeek = ""
 
 def setEditing3():
-    global editing1, editing2, editing3, notifyAmntMonth
+    global editing1, editing2, editing3, editing4, editing5, notifyAmntMonth
     if editing3:
         editing3 = False
         if len(notifyAmntMonth) == 0:
@@ -209,8 +218,42 @@ def setEditing3():
         editing1 = False
         editing2 = False
         editing3 = True
+        editing4 = False
+        editing5 = False
         if notifyAmntMonth == "None":
             notifyAmntMonth = ""
+
+def setEditing4():
+    global editing1, editing2, editing3, editing4, editing5, refreshRate
+    if editing4:
+        editing4 = False
+        if len(refreshRate) == 0:
+            refreshRate = "None"
+            notifSettings.texts[7] = Text(str(refreshRate), 'subtitle', Colors.textCol, (3, 60), False)
+    else:
+        editing1 = False
+        editing2 = False
+        editing3 = False
+        editing4 = True
+        editing5 = False
+        if refreshRate == "None":
+            refreshRate = ""
+
+def setEditing5():
+    global editing1, editing2, editing3, editing4, editing5, notifRate
+    if editing5:
+        editing5 = False
+        if len(notifRate) == 0:
+            notifRate = "None"
+            notifSettings.texts[8] = Text(str(notifRate), 'subtitle', Colors.textCol, (3, 60), False)
+    else:
+        editing1 = False
+        editing2 = False
+        editing3 = False
+        editing4 = False
+        editing5 = True
+        if notifRate == "None":
+            notifRate = ""
 
 def notifSettingsRender(screen):
     screen.blit(pygame.transform.scale(notifSettings.bg, screen.get_size()), (0,0))
@@ -218,13 +261,16 @@ def notifSettingsRender(screen):
         button.draw(screen)
     for text in notifSettings.texts:
         text.draw(screen)
-    pygame.draw.line(screen, Colors.textCol, (screen.get_width()/100*10, screen.get_height()/100*12), (screen.get_width()/100*90, screen.get_height()/100*12), 5)
     if editing1:
-        pygame.draw.line(screen, (180,50,60), (screen.get_width()/100*3, screen.get_height()/100*35), (screen.get_width()/100*40, screen.get_height()/100*35), 5)
+        pygame.draw.line(screen, Colors.accentCol, (screen.get_width()/100*3, screen.get_height()/100*35), (screen.get_width()/100*30, screen.get_height()/100*35), 5)
     if editing2:
-        pygame.draw.line(screen, (180,50,60), (screen.get_width()/100*3, screen.get_height()/100*50), (screen.get_width()/100*40, screen.get_height()/100*50), 5)
+        pygame.draw.line(screen, Colors.accentCol, (screen.get_width()/100*3, screen.get_height()/100*50), (screen.get_width()/100*30, screen.get_height()/100*50), 5)
     if editing3:
-        pygame.draw.line(screen, (180,50,60), (screen.get_width()/100*3, screen.get_height()/100*65), (screen.get_width()/100*40, screen.get_height()/100*65), 5)
+        pygame.draw.line(screen, Colors.accentCol, (screen.get_width()/100*3, screen.get_height()/100*65), (screen.get_width()/100*30, screen.get_height()/100*65), 5)
+    if editing4:
+        pygame.draw.line(screen, Colors.accentCol, (screen.get_width()/100*50, screen.get_height()/100*42), (screen.get_width()/100*70, screen.get_height()/100*42), 5)
+    if editing5:
+        pygame.draw.line(screen, Colors.accentCol, (screen.get_width()/100*50, screen.get_height()/100*67), (screen.get_width()/100*70, screen.get_height()/100*67), 5)
 
 def notifSettingsUpdate():
     pos = pygame.mouse.get_pos()
@@ -234,14 +280,18 @@ def notifSettingsUpdate():
         else:
             button.hovering = False
     if editing1:
-        notifSettings.texts[2] = Text(str(notifyAmntDay) + "% in a day", 'subtitle', Colors.textCol, (3, 30), False)
+        notifSettings.texts[2] = Text(str(notifyAmntDay) + "% in a day", 'paragraph', Colors.textCol, (3, 30), False)
     if editing2:
-        notifSettings.texts[3] = Text(str(notifyAmntWeek) + "% in a week", 'subtitle', Colors.textCol, (3, 45), False)
+        notifSettings.texts[3] = Text(str(notifyAmntWeek) + "% in a week", 'paragraph', Colors.textCol, (3, 45), False)
     if editing3:
-        notifSettings.texts[4] = Text(str(notifyAmntMonth) + "% in a month", 'subtitle', Colors.textCol, (3, 60), False)
+        notifSettings.texts[4] = Text(str(notifyAmntMonth) + "% in a month", 'paragraph', Colors.textCol, (3, 60), False)
+    if editing4:
+        notifSettings.texts[7] = Text("Every " + str(refreshRate) + " minutes", 'paragraph', Colors.textCol, (60, 38), True)
+    if editing5:
+        notifSettings.texts[8] = Text("Every " + str(notifRate) + " minutes", 'paragraph', Colors.textCol, (60, 63), True)
 
 def notifSettingsInput(events):
-    global notifyAmntDay, notifyAmntMonth, notifyAmntWeek, editing1, editing2, editing3
+    global notifyAmntDay, notifyAmntMonth, notifyAmntWeek, refreshRate, notifRate, editing1, editing2, editing3, editing4, editing5
     for event in events:
         if event.type == pygame.KEYDOWN:
             if editing1:
@@ -277,6 +327,29 @@ def notifSettingsInput(events):
                         notifSettings.texts[4] = Text(str(notifyAmntMonth), 'subtitle', Colors.textCol, (3, 60), False)
                 elif checkNum(event.unicode):
                     notifyAmntMonth += event.unicode
+                    
+            if editing4:
+                if event.key == pygame.K_BACKSPACE:
+                    if len(refreshRate) > 0:
+                        refreshRate = refreshRate[:-1]
+                elif event.key == pygame.K_RETURN:
+                    editing4 = False
+                    if len(refreshRate) == 0:
+                        refreshRate = "None"
+                        notifSettings.texts[7] = Text(str(refreshRate), 'subtitle', Colors.textCol, (3, 60), False)
+                elif checkNum(event.unicode):
+                    refreshRate += event.unicode
+            if editing5:
+                if event.key == pygame.K_BACKSPACE:
+                    if len(notifRate) > 0:
+                        notifRate = notifRate[:-1]
+                elif event.key == pygame.K_RETURN:
+                    editing5 = False
+                    if len(notifRate) == 0:
+                        notifRate = "None"
+                        notifSettings.texts[8] = Text(str(notifRate), 'subtitle', Colors.textCol, (3, 60), False)
+                elif checkNum(event.unicode):
+                    notifRate += event.unicode
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             for button in notifSettings.buttons:
@@ -300,6 +373,7 @@ def refreshAllText():
     menu.texts = menu.texts[:4]
     addBiggestDroppersToMenu()
 
+# **
 def checkAndQueue():
     refresh()
     # ***find a way to optimize it so its running the least amount of code
@@ -328,12 +402,13 @@ def handleQueue(events):
     for event in events:
         if event.type == pygame.USEREVENT + 1:
             if len(notifQueue) > 0:
-                print("notifying...")
                 notify("New Target Low!", str(notifQueue[0][0]['label']) + " dropped by " + str(notifQueue[0][0]['perf']) + "% in a " + str(notifQueue[0][1]))
                 notifQueue.remove(notifQueue[0])
 
+# **
 def checkNotInQueue(newNotif):
-    # this function can be optimized to 
+    # this function can be optimized to add a bunch of other checks,
+    # like if it was notified about today yet or not
     for notif in notifQueue:
         if newNotif[0]['label'] == notif[0]['label'] and newNotif[1] == notif[1]:
             return False
@@ -365,25 +440,25 @@ Screen.state = 0
 editing1 = False
 editing2 = False
 editing3 = False
+editing4 = False
+editing5 = False
 nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 notifQueue = []
-pygame.time.set_timer(pygame.USEREVENT + 1, 5000)
 stockBeingViewed = None
-
 path = getSettingsPath()
-print(path)
-notifyAmntDay, notifyAmntWeek, notifyAmntMonth = getJsonData(path)
+data = getJsonData(path)
+notifyAmntDay, notifyAmntWeek, notifyAmntMonth = getNotifData(data)
 notifyAmntDay = str(notifyAmntDay)
 notifyAmntWeek = str(notifyAmntWeek)
 notifyAmntMonth = str(notifyAmntMonth)
-
-
+refreshRate, notifRate = getTimerData(data)
+refreshRate = str(refreshRate)
+notifRate = str(notifRate)
 dayInfo = eval(getDayInfo())
 weekInfo = eval(getWeekInfo())
 monthInfo = eval(getMonthInfo())
-
 muteList = getMuteSettings()
-
+pygame.time.set_timer(pygame.USEREVENT + 1, int(notifRate)*1000)
 
 
 # Screens~~~~~~~~~~
@@ -394,10 +469,10 @@ menu = Screen(
         Button("Notification Settings", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 40, 32, 10), 20, changeStateToNotif)
     ],
     [
-        Text('Future Tracking', 'title', Colors.textCol, (50,5), True),
+        Text('Future Tracking', 'title', Colors.textCol, (50,5), True, True),
         Text('Biggest Droppers', 'subtitle', Colors.textCol, (50,60), True),
-        Text('on the day', 'subtitle', Colors.textCol, (30,67), True),
-        Text('on the week', 'subtitle', Colors.textCol, (70,67), True)
+        Text('on the day', 'subtitle', Colors.textCol, (30,67), True, True),
+        Text('on the week', 'subtitle', Colors.textCol, (70,67), True, True)
     ],
     Colors.bgCol1, Colors.bgCol2
 )
@@ -408,10 +483,9 @@ fullList = Screen(
         Button("Sort Day", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(16, 13, 18, 5), 20, setFullListDay),
         Button("Sort Week", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(41, 13, 18, 5), 20, setFullListWeek),
         Button("Sort Month", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(66, 13, 18, 5), 20, setFullListMonth)
-
     ],
     [
-        Text("All Futures", 'title', Colors.textCol, (50,2), True)
+        Text("All Futures", 'title', Colors.textCol, (50,2), True, True)
     ],
     Colors.bgCol1, Colors.bgCol2
 )
@@ -433,17 +507,23 @@ futureView = Screen(
 
 notifSettings = Screen(
     [
-        Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(38, 85, 24, 10), 20, changeStateToMenu),
+        Button("Back", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(38, 85, 24, 10), 20, writeSettingsAndMenuState),
         Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(5, 36, 16, 7), 20, setEditing1),
         Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(5, 51, 16, 7), 20, setEditing2),
-        Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(5, 66, 16, 7), 20, setEditing3)
+        Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(5, 66, 16, 7), 20, setEditing3),
+        Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(52, 43, 16, 7), 20, setEditing4),
+        Button("Change", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(52, 68, 16, 7), 20, setEditing5)
     ],
     [
-        Text("Notification Settings", 'title', Colors.textCol, (50, 3), True),
+        Text("Notification Settings", 'title', Colors.textCol, (50, 3), True, True),
         Text("Notify for drops more than", 'subtitle', Colors.textCol, (3, 20), False),
-        Text(str(notifyAmntDay) + "% in a day", 'subtitle', Colors.textCol, (3, 30), False),
-        Text(str(notifyAmntWeek) + "% in a week", 'subtitle', Colors.textCol, (3, 45), False),
-        Text(str(notifyAmntMonth) + "% in a month", 'subtitle', Colors.textCol, (3, 60), False)
+        Text(str(notifyAmntDay) + "% in a day", 'paragraph', Colors.textCol, (3, 30), False),
+        Text(str(notifyAmntWeek) + "% in a week", 'paragraph', Colors.textCol, (3, 45), False),
+        Text(str(notifyAmntMonth) + "% in a month", 'paragraph', Colors.textCol, (3, 60), False),
+        Text("Refresh Rate", 'subtitle', Colors.textCol, (60, 30), True),
+        Text("Notification Rate", 'subtitle', Colors.textCol, (60, 55), True),
+        Text("Every " + str(refreshRate) + " minutes", 'paragraph', Colors.textCol, (60, 38), True),
+        Text("Every " + str(notifRate) + " minutes", 'paragraph', Colors.textCol, (60, 63), True)
     ],
     Colors.bgCol1, Colors.bgCol2
 )

@@ -41,17 +41,18 @@ def convertRect(surface, rectTuple):
     return pygame.Rect(width/100*newRect[0], height/100*newRect[1], width/100*newRect[2], height/100*newRect[3])
 
 class Colors:
-    col1 = [207, 186, 240]
-    col2 = [152, 245, 225]
-    col3 = [251, 248, 204]
-    col4 = [253, 228, 207]
-    col5 = [255, 207, 210]
+    col1 = [248, 248, 255]
+    col2 = [237, 87, 82]
+    col3 = [51, 51, 51]
+    col4 = [214, 233, 252]
+    col5 = [146, 170, 199]
 
     textCol = col3.copy()
     bgCol1 = col1.copy()
-    bgCol2 = col2.copy()
+    bgCol2 = col1.copy()
     buttonCol1 = col4.copy()
     buttonCol2 = col5.copy()
+    accentCol = col2.copy()
 
 
 class Surf:
@@ -78,7 +79,7 @@ class Fonts:
 
 class Text:
     texts = []
-    def __init__(self, text, font, color, position, centered) -> None:
+    def __init__(self, text, font, color, position, centered, underline = False) -> None:
         self.content = str(text)
         self.fontSize = font
         self.font = Fonts.fonts[font]
@@ -88,6 +89,7 @@ class Text:
         self.text = self.font.render(self.content, True, self.color)
         self.rect = pygame.Rect(0,0,0,0)
         Text.texts.append(self)
+        self.underline = underline
 
     def resize(self):
         self.font = Fonts.fonts[self.fontSize]
@@ -103,9 +105,21 @@ class Text:
         if self.centered:
             self.rect = pygame.Rect(surface.get_width()/100*self.pos[0]-self.text.get_width()/2, surface.get_height()/100*self.pos[1], self.text.get_width(), self.text.get_height())
             surface.blit(self.text, (surface.get_width()/100*self.pos[0]-self.text.get_width()/2, surface.get_height()/100*self.pos[1]))
+            if self.underline:
+                smallMargin = surface.get_width()/100*3
+                xCoord1 = surface.get_width()/100*(self.pos[0])-self.text.get_width()/2 + smallMargin
+                xCoord2 = xCoord1 + self.text.get_width() - 2*smallMargin
+                yCoord = surface.get_height()/100 * (self.pos[1]) + self.text.get_height()
+                pygame.draw.line(surface, Colors.accentCol, (xCoord1, yCoord), (xCoord2, yCoord), 5)
         else:
             self.rect = pygame.Rect(surface.get_width()/100*self.pos[0], surface.get_height()/100*self.pos[1], self.text.get_width(), self.text.get_height())
             surface.blit(self.text, (surface.get_width()/100*self.pos[0], surface.get_height()/100*self.pos[1]))
+            if self.underline:
+                smallMargin = surface.get_width()/100*3
+                xCoord1 = surface.get_width()/100*(self.pos[0]) + smallMargin
+                xCoord2 = xCoord1 + self.text.get_width() - 2*smallMargin
+                yCoord = surface.get_height()/100 * (self.pos[1]+1) + self.text.get_height()
+                pygame.draw.line(surface, Colors.accentCol, (xCoord1, yCoord), (xCoord2, yCoord), 5)
 
     def checkMouseOver(self):
         pos = pygame.mouse.get_pos()

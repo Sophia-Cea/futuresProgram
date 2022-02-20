@@ -8,7 +8,7 @@ from screensAndFunctions import *
 fpsClock = pygame.time.Clock()
 FPS = 30
 idling = False
-pygame.time.set_timer(pygame.USEREVENT, 6000) # every minute
+pygame.time.set_timer(pygame.USEREVENT, int(refreshRate)*1000)
 
 
 running = True
@@ -19,7 +19,6 @@ while running:
             running = False
         if event.type == pygame.USEREVENT:
             print("refreshing")
-            # refresh()
             checkAndQueue()
         if not idling:
             if event.type == pygame.USEREVENT:
