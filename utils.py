@@ -188,6 +188,7 @@ class Button:
 class Screen:
     screens = []
     state = 0
+    idling = False
     def __init__(self, buttons, texts, gradCol1, gradCol2) -> None:
         self.buttons = buttons
         self.texts = texts
@@ -222,10 +223,7 @@ class Screen:
                 for button in self.buttons:
                     if button.checkMouseOver(pos):
                         if button.onClickFunc != None:
-                            print("running func")
                             button.onClickFunc()
-                        else:
-                            print("no func")
 
     def run(screen, events):
         Screen.screens[Screen.state].renderFunction(screen)

@@ -23,7 +23,6 @@ from notify import *
 
 
 # Functions for screens~~~~~~~
-
 def changeStateToFullList():
     Screen.state = 1
 
@@ -35,6 +34,18 @@ def changeStateToFutureView():
 
 def changeStateToNotif():
     Screen.state = 3
+
+def setIdle():
+    global screen
+    screen = pygame.display.set_mode([1,1], pygame.HIDDEN)
+    Screen.state = 4
+    Screen.idling = True
+
+def stopIdling():
+    global screen
+    screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.RESIZABLE)
+    Screen.state = 0
+    Screen.idling = False
 
 def writeSettingsAndMenuState():
     writeSettings(path, notifyAmntDay, notifyAmntWeek, notifyAmntMonth, refreshRate, notifRate)
@@ -164,14 +175,13 @@ def pickNewFilePath():
     try:
         path = filedialog.askopenfilename()
     except:
-        print("didnt work")
+        print("couldnt open file dialog")
     return path
 
 def getSettingsPath():
     try:
         path = pox.find('settings.json')[0]
     except:
-        print("excepting...")
         path = pickNewFilePath()
     return path
 
@@ -423,17 +433,17 @@ def getMuteSettings():
 def muteStock():
     muteList[stockBeingViewed] = True
     setupFutureView(stockBeingViewed)
-    print(muteList)
 
 def unMuteStock():
     muteList[stockBeingViewed] = False
     setupFutureView(stockBeingViewed)
 
-# Run Stuff~~~~~~
 
+# Run Stuff~~~~~~
 WIDTH = 600
 HEIGHT = 700
 pygame.init()
+# idling = False
 screen = pygame.display.set_mode([WIDTH,HEIGHT], pygame.RESIZABLE)
 Surf.surface = screen
 Screen.state = 0
@@ -462,14 +472,14 @@ pygame.time.set_timer(pygame.USEREVENT + 1, int(notifRate)*1000)
 
 
 # Screens~~~~~~~~~~
-
 menu = Screen(
     [
-        Button("View full list", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 28, 32, 10), 20, changeStateToFullList),
-        Button("Notification Settings", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 40, 32, 10), 20, changeStateToNotif)
+        Button("View full list", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 21, 32, 10), 20, changeStateToFullList),
+        Button("Notification Settings", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 33, 32, 10), 20, changeStateToNotif),
+        Button("Idle", Colors.textCol, Colors.buttonCol1, Colors.buttonCol2, pygame.Rect(34, 45, 32, 10), 20, setIdle),
     ],
     [
-        Text('Future Tracking', 'title', Colors.textCol, (50,5), True, True),
+        Text('Crystal Ball', 'title', Colors.textCol, (50,5), True, True),
         Text('Biggest Droppers', 'subtitle', Colors.textCol, (50,60), True),
         Text('on the day', 'subtitle', Colors.textCol, (30,67), True, True),
         Text('on the week', 'subtitle', Colors.textCol, (70,67), True, True)
@@ -528,15 +538,16 @@ notifSettings = Screen(
     Colors.bgCol1, Colors.bgCol2
 )
 
+idle = Screen(
+    [], [], [0,0,0], [0,0,0]
+)
 
 # More run stuff~~~~~~~~~~~~
-
 addBiggestDroppersToMenu()
 setFullListDay()
 
 fullList.updateFunction = fullListUpdate
 fullList.inputFunction = fullListInput
-
 notifSettings.renderFunction = notifSettingsRender
 notifSettings.updateFunction = notifSettingsUpdate
 notifSettings.inputFunction = notifSettingsInput
